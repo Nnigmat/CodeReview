@@ -1,4 +1,4 @@
-# Code Rewiev of Booking System
+# Code Review of Booking System
 Python-Django implemetion of Library Management System website: 
 Introduction to Programming project by students of BS1-7 group, team: Danil Ginzburg, Nikita Nigmatulin,
 Maria Charikova, Roman Bogachev
