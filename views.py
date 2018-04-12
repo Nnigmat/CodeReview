@@ -250,36 +250,3 @@ def renew(request):
                                                                                    str(days_for_checking_out)))
 
 
-@required_staff
-def outstanding_request(request):
-    try:
-        id = request.GET.get('doc_id')
-        doc = documents_models.Document.objects.get(pk=id)
-    except Exception:
-        raise Http404('This document does not exist')
-
-    message_for_req = "Hello! due to an outstanding request from {} (librarian) your request for {} has been canceled". \
-        format(request.user.username, doc.title)
-
-    # create outreq instance
-    if OutStandingRequest.objects.filter(doc=doc).count() > 0:
-        OutStandingRequest.objects.get(doc=doc).delete()
-    out_request = OutStandingRequest(doc=doc)
-    out_request.save()
-
-    for req in Request.objects.filter(doc=doc):
-        for user in req.users.all():
-            to = user.email
-            send_mail('Outstanding request', message_for_req, settings.EMAIL_HOST_USER, [to])
-        req.delete()
-
-    message_for_checked = "Hello! due to an outstanding request from {} (librarian) document {} should" \
-                          "be returned during 1 day".format(request.user.username, doc.title)
-    for doc_copy in doc.documentcopy_set.all():
-        to = doc_copy.checked_up_by_whom.email
-        # doc_copy.returning_date = (
-        #         datetime.date.today() + datetime.timedelta(days=1)).strftime("%Y-%m-%d %H:%M")
-        # doc_copy.save()
-        send_mail('Outstanding request', message_for_checked, settings.EMAIL_HOST_USER, [to])
-
-    return redirect('/' + str(id))
